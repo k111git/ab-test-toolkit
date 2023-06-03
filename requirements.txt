@@ -1,0 +1,8 @@
+black
+jupyter-black
+numpy
+scipy
+pandas
+plotly
+nbdev
+statsmodels

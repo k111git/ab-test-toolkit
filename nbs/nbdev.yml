@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "ab-test-toolkit"
+  site-url: "https://k111git.github.io/ab-test-toolkit"
+  description: "Toolkit to simulate and analyze AB tests"
+  repo-branch: main
+  repo-url: "https://github.com/k111git/ab-test-toolkit"

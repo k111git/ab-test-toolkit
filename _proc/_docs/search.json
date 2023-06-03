@@ -1,0 +1,86 @@
+[
+  {
+    "objectID": "power.html",
+    "href": "power.html",
+    "title": "Power",
+    "section": "",
+    "text": "source\n\nsimulate_power_binary\n\n simulate_power_binary (sizes=array([ 10000,  20000,  30000,  40000,\n                        50000,  60000,  70000,  80000,         90000,\n                        100000]), cr0=0.01, cr1=0.012, realizations=1000,\n                        alpha=0.05, one_sided=True, power=0.8)\n\nSimulates the power using two test: Bayesian testing (Probability B>A) and fisher test (p-value). Return total sample size (e.g. we need to devide by 2 for each variant sample size given 50/50 split)\n\n\nsource\n\n\nsample_size_binary\n\n sample_size_binary (cr0=0.01, cr1=0.012, alpha=0.05, power=0.8,\n                     one_sided=True)\n\nCalculates the sample size for chi2 using sns package\n\n\nsource\n\n\nsimulate_power_continuous\n\n simulate_power_continuous (sizes=array([ 1000,  3000,  5000,  7000,\n                            9000, 11000, 13000, 15000, 17000,\n                            19000]), effect=0.05, realizations=1000,\n                            alpha=0.05, one_sided=True, power=0.8)\n\nSimulates the power using t-test and bayesian testing (only one-sided) Return total sample size (e.g. we need to devide by 2 for each variant sample size given 50/50 split)\n\n# https://www.stat.ubc.ca/~rollin/stats/ssize/n2.html\n\n\n\nsource\n\n\nsample_size_continuous\n\n sample_size_continuous (mu1=5.0, mu2=5.05, sigma=1, alpha=0.05,\n                         power=0.8, one_sided=True)\n\nforumla: https://towardsdatascience.com/required-sample-size-for-a-b-testing-6f6608dd330a web calulator: https://www.stat.ubc.ca/~rollin/stats/ssize/n2.html returns sample size per variant two-sided test"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ab-test-toolkit",
+    "section": "",
+    "text": "pip install ab_test_toolkit"
+  },
+  {
+    "objectID": "index.html#imports",
+    "href": "index.html#imports",
+    "title": "ab-test-toolkit",
+    "section": "imports",
+    "text": "imports\n\nfrom ab_test_toolkit.generator import (\n    generate_binary_data,\n    generate_continuous_data,\n    data_to_contingency,\n)\nfrom ab_test_toolkit.power import (\n    simulate_power_binary,\n    sample_size_binary,\n    simulate_power_continuous,\n    sample_size_continuous,\n)\nfrom ab_test_toolkit.plotting import (\n    plot_power,\n    plot_distribution,\n    plot_betas,\n)"
+  },
+  {
+    "objectID": "index.html#binary-target-e.g.-conversion-rate-experiments",
+    "href": "index.html#binary-target-e.g.-conversion-rate-experiments",
+    "title": "ab-test-toolkit",
+    "section": "Binary target (e.g. conversion rate experiments)",
+    "text": "Binary target (e.g. conversion rate experiments)\n\nSample size:\nWe can calculate the sample size required with the function “sample_size_chi2”. Input needed is:\n\nConversion rate control: cr0\nConversion rate variant for minimal detectable effect: cr1 (for example, if we have a conversion rate of 1% and want to detect an effect of at least 20% relate, we would set cr0=0.010 and cr1=0.012)\nSignificance threshold: alpha. Usually set to 0.05, this defines our tolerance for falsely detecting an effect if in reality there is none (alpha=0.05 means that in 5% of the cases we will detect an effect even though the samples for control and variant are drawn from the exact same distribution).\nStatistical power. Usually set to 0.8. This means that if the effect is the minimal effect specified above, we have an 80% probability of identifying it at statistically significant (and hence 20% of not idenfitying it).\none_sided: If the test is one-sided (one_sided=True) or if it is two-sided (one_sided=False). As a rule of thumb, if there are very strong reasons to believe that the variant cannot be inferior to the control, we can use a one sided test. In case of doubts, using a two sided test is better.\n\nlet us calculate the sample size for the following example:\n\nn_sample = sample_size_binary(\n    cr0=0.01,\n    cr1=0.012,\n    alpha=0.05,\n    power=0.8,\n    one_sided=True,\n)\nprint(f\"Required sample size per variant is {int(n_sample)}.\")\n\nRequired sample size per variant is 33560.\n\n\n\nn_sample_two_sided = sample_size_binary(\n    cr0=0.01,\n    cr1=0.012,\n    alpha=0.05,\n    power=0.8,\n    one_sided=False,\n)\nprint(\n    f\"For the two-sided experiment, required sample size per variant is {int(n_sample_two_sided)}.\"\n)\n\nFor the two-sided experiment, required sample size per variant is 42606.\n\n\n\n\nPower simulations\nWhat happens if we use a smaller sample size? And how can we understand the sample size?\nLet us analyze the statistical power with synthethic data. We can do this with the simulate_power_binary function. We are using some default argument here, see this page for more information.\n\n# simulation = simulate_power_binary()\n\nNote: The simulation object return the total sample size, so we need to split it per variant.\n\n# simulation\n\nFinally, we can plot the results (note: the plot function show the sample size per variant):\n\n# plot_power(\n#     simulation,\n#     added_lines=[{\"sample_size\": sample_size_binary(), \"label\": \"Chi2\"}],\n# )\n\n\n\nThe problem of peaking\nwip"
+  },
+  {
+    "objectID": "index.html#contunious-target-e.g.-average",
+    "href": "index.html#contunious-target-e.g.-average",
+    "title": "ab-test-toolkit",
+    "section": "Contunious target (e.g. average)",
+    "text": "Contunious target (e.g. average)\nHere we assume normally distributed data (which usually holds due to the central limit theorem).\n\nSample size\nWe can calculate the sample size required with the function “continuous_sample_size”. Input needed is:\n\nmu1: Mean of the control group\nmu2: Mean of the variant group assuming minimal detectable effect (e.g. if the mean it 5, and we want to detect an effect as small as 0.05, mu1=5.00 and mu2=5.05)\nsigma: Standard deviation (we assume the same for variant and control, should be estimated from historical data)\nalpha, power, one_sided: as in the binary case\n\nLet us calculate an example:\n\nn_sample = sample_size_continuous(\n    mu1=5.0, mu2=5.05, sigma=1, alpha=0.05, power=0.8, one_sided=True\n)\nprint(f\"Required sample size per variant is {int(n_sample)}.\")\n\nRequired sample size per variant is 4946.\n\n\nLet us also do some simulations. These show results for the t-test as well as bayesian testing (only 1-sided).\n\n# simulation = simulate_power_continuous()\n\n\n# plot_power(\n#     simulation,\n#     added_lines=[\n#         {\"sample_size\": continuous_sample_size(), \"label\": \"Formula\"}\n#     ],\n# )"
+  },
+  {
+    "objectID": "index.html#data-generators",
+    "href": "index.html#data-generators",
+    "title": "ab-test-toolkit",
+    "section": "Data Generators",
+    "text": "Data Generators\nWe can also use the data generators for example data to analyze or visualuze as if they were experiments.\nDistribution without effect:\n\ndf_continuous = generate_continuous_data(effect=0)\n# plot_distribution(df_continuous)\n\nDistribution with effect:\n\ndf_continuous = generate_continuous_data(effect=1)\n# plot_distribution(df_continuous)"
+  },
+  {
+    "objectID": "index.html#visualizations",
+    "href": "index.html#visualizations",
+    "title": "ab-test-toolkit",
+    "section": "Visualizations",
+    "text": "Visualizations\nPlot beta distributions for a contingency table:\n\ndf = generate_binary_data()\ndf_contingency = data_to_contingency(df)\n# fig = plot_betas(df_contingency, xmin=0, xmax=0.04)"
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "foo\n\n foo ()"
+  },
+  {
+    "objectID": "plotting.html",
+    "href": "plotting.html",
+    "title": "Plotting",
+    "section": "",
+    "text": "source\n\nplot_distribution\n\n plot_distribution (df, show_rug=True)\n\nPlots the distribution for both groups of generate_continuous_data\n\n\nsource\n\n\nplot_power\n\n plot_power (simulation, added_lines=[])\n\nTakes simulation dict and plots the power over sample sizes Added lines: plot horizontal lines for additional sample size estimations, takes a list of dicts with sample_size=sample_size,label=label\n\n\nsource\n\n\nplot_betas\n\n plot_betas (df_contingency, xmin=0.0, xmax=0.2, names=['A', 'B'])\n\nPlots two beta distributions, one for control and for variant. Takes as input a contigency table as dataframe\n\n\nsource\n\n\nplot_binary_power\n\n plot_binary_power (cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True)\n\n\n\nsource\n\n\nplot_continuous_power\n\n plot_continuous_power (mu1=5.0, mu2=5.05, sigma=1, alpha=0.05,\n                        one_sided=True)"
+  },
+  {
+    "objectID": "analyze.html",
+    "href": "analyze.html",
+    "title": "Analysis of experiments",
+    "section": "",
+    "text": "p_value_binary\n\n p_value_binary (df_contingency, one_sided=True)"
+  },
+  {
+    "objectID": "wrappers.html",
+    "href": "wrappers.html",
+    "title": "Wrappers",
+    "section": "",
+    "text": "source\n\nhello\n\n hello ()\n\n\nhello()\n\n\n    Welcome :) \n\n    You can find additional documentation here: https://k111git.github.io/ab-test-simulator/"
+  },
+  {
+    "objectID": "data_generation.html",
+    "href": "data_generation.html",
+    "title": "Data Generation",
+    "section": "",
+    "text": "source\n\ngenerate_binary_data\n\n generate_binary_data (N=1000, cr0=0.01, cr1=0.011, split=0.5)\n\nGenerates synthethic data for a binary experiement with two groups (0: Control, 1: Variant). Inputs: N: Sample size (total number of users) Split: % of users assigned randomly to the variant (group 1) cr0: Conversion rate control cr1: Conversion rate variant\n\n\nsource\n\n\ngenerate_continuous_data\n\n generate_continuous_data (N=1000, base=5, effect=0, noise=1, std=1,\n                           split=0.5)\n\nGenerates synthethic data for a continuous experiement with two groups (0: Control, 1: Variant). Inputs: N: Sample size (total number of users)\n\n\nsource\n\n\ndata_to_contingency\n\n data_to_contingency (df)\n\nConverts output from generate_binary_data to a contingency table\n\n\nsource\n\n\ngenerate_contingency\n\n generate_contingency (N=1000, split=0.5, cr0=0.01, cr1=0.011)\n\nGenerate contingency table using binominal distribution"
+  }
+]
