@@ -1,9 +1,0 @@
-website:
-  sidebar:
-    contents:
-      - index.ipynb
-      - 00_data_generation.ipynb
-      - 01_power.ipynb
-      - 02_analyze.ipynb
-      - 03_plotting.ipynb
-      - 04_wrappers.ipynb

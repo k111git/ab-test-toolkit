@@ -22,6 +22,7 @@ from ab_test_toolkit.generator import (
     generate_binary_data,
     data_to_contingency,
     generate_continuous_data,
+    generate_contingency
 )
 
 from bayesian_testing.experiments import BinaryDataTest, NormalDataTest
@@ -49,10 +50,13 @@ def simulate_power_binary(
     alpha=0.05,
     one_sided=True,
     power=0.8,
+    fast=True
 ):
     """
     Simulates the power using two test: Bayesian testing (Probability B>A) and fisher test (p-value).
     Return total sample size (e.g. we need to devide by 2 for each variant sample size given 50/50 split)
+    Fast = True: Contigency table drawn from binom distribution
+    Fast = False: Contigency table built form data generated at individual level
     """
     if one_sided == True:
         alternative = "greater"
@@ -71,8 +75,13 @@ def simulate_power_binary(
         pvs_fisher[idx] = []
         pvs_z[idx] = []
         for realization in range(0, realizations):
-            df_binary = generate_binary_data(N=size, cr0=cr0, cr1=cr1)
-            df_contingency = data_to_contingency(df_binary)
+            if fast==False:
+                df_binary = generate_binary_data(N=size, cr0=cr0, cr1=cr1)
+                df_contingency = data_to_contingency(df_binary)
+            elif fast==True:
+                df_contingency = generate_contingency(N=size, cr0=cr0, cr1=cr1,exact=False)
+            else:
+                raise Exception("Invalid input for fast parameter.")
             test = BinaryDataTest()
             for group in [0, 1]:
                 nUser = df_contingency.loc[group].users

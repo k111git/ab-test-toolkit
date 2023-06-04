@@ -64,20 +64,30 @@ def data_to_contingency(df):
     return df_result
 
 # %% ../nbs/00_data_generation.ipynb 11
-def generate_contingency(N=1000, split=0.50, cr0=0.010, cr1=0.011):
+def generate_contingency(N=1000, split=0.50, cr0=0.010, cr1=0.011,exact=False):
     """
     Generate contingency table using binominal distribution
+    For exact=False, we draw the numbers from the binominal distribution.
+    For exact=True, we calculate the numbers from multiplying number users * conversion rate
     """
     assert N > 5, "N need to be more than 5"
     assert split >= 0.01, "Split needs to be >= 1%"
     assert split <= 0.99, "Split needs to be <= 99%"
-    while True:
-        n1 = binom.rvs(N, split, loc=0, size=1)[0]
-        if n1 < N and n1 > 0:
-            break
-    n0 = N - n1
-    c0 = binom.rvs(n0, cr0, loc=0, size=1)[0]
-    c1 = binom.rvs(n1, cr1, loc=0, size=1)[0]
+    if exact==False:
+        while True:
+            n1 = binom.rvs(N, split, loc=0, size=1)[0]
+            if n1 < N and n1 > 0:
+                break
+        n0 = N - n1
+        c0 = binom.rvs(n0, cr0, loc=0, size=1)[0]
+        c1 = binom.rvs(n1, cr1, loc=0, size=1)[0]
+    elif exact==True:
+        n0=int(np.round(N*split))
+        n1=N-n1
+        c0=int(np.round(n0*cr0))
+        c1=int(np.round(n1*cr1))
+    else:
+        raise Exception("Invalid input for exact parameter in generate_contingency function.")
     df_result = pd.DataFrame(
         {"group": [0, 1], "users": [n0, n1], "converted": [c0, c1]}
     )

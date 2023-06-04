@@ -35,7 +35,7 @@ from ab_test_toolkit.plotting import (
 ### Sample size:
 
 We can calculate the sample size required with the function
-“sample_size_chi2”. Input needed is:
+“sample_size_binary”. Input needed is:
 
 - Conversion rate control: cr0
 
@@ -73,8 +73,6 @@ n_sample = sample_size_binary(
 print(f"Required sample size per variant is {int(n_sample)}.")
 ```
 
-    Required sample size per variant is 33560.
-
 ``` python
 n_sample_two_sided = sample_size_binary(
     cr0=0.01,
@@ -87,8 +85,6 @@ print(
     f"For the two-sided experiment, required sample size per variant is {int(n_sample_two_sided)}."
 )
 ```
-
-    For the two-sided experiment, required sample size per variant is 42606.
 
 ### Power simulations
 
@@ -134,7 +130,7 @@ central limit theorem).
 ### Sample size
 
 We can calculate the sample size required with the function
-“continuous_sample_size”. Input needed is:
+“sample_size_continuous”. Input needed is:
 
 - mu1: Mean of the control group
 
@@ -155,8 +151,6 @@ n_sample = sample_size_continuous(
 )
 print(f"Required sample size per variant is {int(n_sample)}.")
 ```
-
-    Required sample size per variant is 4946.
 
 Let us also do some simulations. These show results for the t-test as
 well as bayesian testing (only 1-sided).
