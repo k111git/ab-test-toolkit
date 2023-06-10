@@ -196,3 +196,18 @@ df = generate_binary_data()
 df_contingency = data_to_contingency(df)
 # fig = plot_betas(df_contingency, xmin=0, xmax=0.04)
 ```
+
+## False positives
+
+``` python
+# simulation = simulate_power_binary(cr0=0.01, cr1=0.01, one_sided=False)
+```
+
+``` python
+# plot_power(simulation, is_effect=False)
+```
+
+``` python
+# simulation = simulate_power_binary(cr0=0.01, cr1=0.01, one_sided=True)
+# plot_power(simulation, is_effect=False)
+```

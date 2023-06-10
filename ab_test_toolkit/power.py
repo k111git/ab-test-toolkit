@@ -64,6 +64,7 @@ def simulate_power_binary(
         print("One sided.")
     else:
         alternative = "two-sided"
+        alternative_z = "two-sided"
         print("Two sided tests, except for bayesian which is one sided.")
     approaches = ["fisher", "z", "bayes"]
     pvs = dict()
@@ -89,7 +90,7 @@ def simulate_power_binary(
                 test.add_variant_data_agg(
                     str(group), totals=nUser, positives=nConverted
                 )
-            results = test.evaluate(sim_count=5000)
+            results = test.evaluate(sim_count=2000)
             pvs[idx].append(results[1]["prob_being_best"])
             _, p_fischer = fisher_exact(
                 np.array(df_contingency[["not_converted", "converted"]]),

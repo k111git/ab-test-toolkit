@@ -17,7 +17,7 @@ from scipy.stats import beta
 from .power import sample_size_binary, sample_size_continuous
 
 # %% ../nbs/03_plotting.ipynb 7
-def plot_distribution(df,show_rug=True):
+def plot_distribution(df, show_rug=True):
     """
     Plots the distribution for both groups of generate_continuous_data
     """
@@ -40,12 +40,24 @@ def plot_distribution(df,show_rug=True):
     return fig
 
 # %% ../nbs/03_plotting.ipynb 8
-def plot_power(simulation, added_lines=[]):
+def plot_power(simulation, added_lines=[], is_effect=True):
     """
     Takes simulation dict and plots the power over sample sizes
     Added lines: plot horizontal lines for additional sample size estimations, takes a list of dicts with sample_size=sample_size,label=label
+    is_effect: True: there is an effect in reality, hence we are interested in power. False: we are interested in false positives.
     """
     approaches = simulation["approaches"]
+    if is_effect == True:
+        ytitle = "Power"
+        yrange=[0,1]
+    elif is_effect == False:
+        ytitle = "False positives"
+        yrange=[0,0.1]
+    else:
+        raise Exception(
+            "Non boolean for is effect encountered in power plot function."
+        )
+        
     fig = go.Figure()
     for approach in approaches:
         fig.add_trace(
@@ -77,14 +89,29 @@ def plot_power(simulation, added_lines=[]):
                 name=added_line["label"],
             )
         )
+    if is_effect == False:
+        fig.add_trace(
+            go.Scatter(
+                x=[0, simulation["sizes"].max() / 2.0],
+                y=[0.05, 0.05],
+                mode="lines",
+                line_dash="dash",
+                line_color="gray",
+                line_width=1,
+            )
+        )
+
 
     fig.update_layout(
         template="simple_white",
         xaxis_title="Sample size per variation",
-        yaxis_title="PDF",
-        yaxis_range=[0, 1],
+        yaxis_title=ytitle,
+        yaxis_range=yrange,
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
+    fig.update_xaxes(showspikes=True, spikemode="across", spikethickness=1)
+    fig.update_yaxes(showspikes=True, spikemode="across", spikethickness=1)
+
     # fig.update_layout(showlegend=True)
     return fig
 
@@ -160,9 +187,11 @@ def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True):
         template="simple_white",
         xaxis_title="Sample size per variant",
         yaxis_title="Power",
-        hovermode="y unified",
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
+    fig.update_xaxes(showspikes=True, spikemode="across", spikethickness=1)
+    fig.update_yaxes(showspikes=True, spikemode="across", spikethickness=1)
+
     return fig
 
 # %% ../nbs/03_plotting.ipynb 13
@@ -210,7 +239,10 @@ def plot_continuous_power(
         template="simple_white",
         xaxis_title="Sample size per variant",
         yaxis_title="Power",
-        hovermode="y unified",
+#         hovermode="y unified",
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
+    fig.update_xaxes(showspikes=True, spikemode="across",spikethickness=1)
+    fig.update_yaxes(showspikes=True, spikemode="across",spikethickness=1)
+
     return fig
