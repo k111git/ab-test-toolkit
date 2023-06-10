@@ -111,6 +111,7 @@ def plot_power(simulation, added_lines=[], is_effect=True):
     )
     fig.update_xaxes(showspikes=True, spikemode="across", spikethickness=1)
     fig.update_yaxes(showspikes=True, spikemode="across", spikethickness=1)
+    fig.update_layout(spikedistance=1000, hoverdistance=100)
 
     # fig.update_layout(showlegend=True)
     return fig
@@ -155,7 +156,10 @@ def plot_betas(df_contingency, xmin=0.0, xmax=0.2, names=["A", "B"]):
     return fig
 
 # %% ../nbs/03_plotting.ipynb 11
-def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True):
+def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_power=0.8):
+    """
+    Generate a chart that shows the 
+    """
     powers = np.arange(0.1, 0.91, 0.025)
     sizes = []
     for power in powers:
@@ -175,7 +179,7 @@ def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True):
 
     fig.add_vline(
         x=sample_size_binary(
-            cr0=cr0, cr1=cr1, alpha=alpha, power=0.8, one_sided=one_sided
+            cr0=cr0, cr1=cr1, alpha=alpha, power=vline_power, one_sided=one_sided
         ),
         line_width=2,
         line_dash="dash",
@@ -187,16 +191,17 @@ def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True):
         template="simple_white",
         xaxis_title="Sample size per variant",
         yaxis_title="Power",
+        hovermode="y unified",
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
     fig.update_xaxes(showspikes=True, spikemode="across", spikethickness=1)
     fig.update_yaxes(showspikes=True, spikemode="across", spikethickness=1)
-
+    fig.update_layout(spikedistance=1000, hoverdistance=100)
     return fig
 
 # %% ../nbs/03_plotting.ipynb 13
 def plot_continuous_power(
-    mu1=5.0, mu2=5.05, sigma=1, alpha=0.05, one_sided=True
+    mu1=5.0, mu2=5.05, sigma=1, alpha=0.05, one_sided=True, vline_power=0.8
 ):
     powers = np.arange(0.1, 0.91, 0.025)
     sizes = []
@@ -226,7 +231,7 @@ def plot_continuous_power(
             mu2=mu2,
             sigma=sigma,
             alpha=alpha,
-            power=0.8,
+            power=vline_power,
             one_sided=one_sided,
         ),
         line_width=2,
@@ -239,10 +244,10 @@ def plot_continuous_power(
         template="simple_white",
         xaxis_title="Sample size per variant",
         yaxis_title="Power",
-#         hovermode="y unified",
+        hovermode="y unified",
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
     fig.update_xaxes(showspikes=True, spikemode="across",spikethickness=1)
     fig.update_yaxes(showspikes=True, spikemode="across",spikethickness=1)
-
+    fig.update_layout(spikedistance=1000, hoverdistance=100)
     return fig
