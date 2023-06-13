@@ -5,6 +5,7 @@ __all__ = ['p_value_binary', 'p_value_binary_from_counts']
 
 # %% ../nbs/02_analyze.ipynb 5
 from scipy.stats import fisher_exact
+from .generator import contingency_from_counts
 
 # %% ../nbs/02_analyze.ipynb 6
 def p_value_binary(df_contingency, one_sided=True):
