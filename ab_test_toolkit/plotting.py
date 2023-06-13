@@ -156,12 +156,10 @@ def plot_betas(df_contingency, xmin=0.0, xmax=0.2, names=["A", "B"]):
     return fig
 
 # %% ../nbs/03_plotting.ipynb 11
-def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_power=0.8,powers=None):
+def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_power=0.8,powers=np.arange(0.1, 0.91, 0.025)):
     """
     Generate a chart that shows the 
     """
-    if powers==None:
-        powers = np.arange(0.1, 0.91, 0.025)
     sizes = []
     for power in powers:
         size = sample_size_binary(

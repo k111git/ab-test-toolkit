@@ -102,7 +102,7 @@ def realizations_of_evolution_binary(
         ).sort_values(by="ate")
         for j in range(0, len(snapshot_sizes))
     ]
-    return {"dataframes": realizations_df, "snapshots": snapshots_df}
+    return {"dataframes": realizations_df, "snapshots": snapshots_df,'snapshot_sizes': snapshot_sizes}
 
 # %% ../nbs/04_wrappers.ipynb 12
 def plot_realization(plot_df, multiply_ate=1.0):
@@ -138,7 +138,7 @@ def plot_realization(plot_df, multiply_ate=1.0):
             y=plot_df[f"pv"],
             mode=mode,
             name=f"pvalue",
-            line_color="cornflowerblue",
+            line_color="#ff7f0e",
             legendgroup="2",
         ),
         row=2,
@@ -150,7 +150,7 @@ def plot_realization(plot_df, multiply_ate=1.0):
             y=multiply_ate * plot_df[f"ate"],
             mode=mode,
             name=f"ate",
-            line_color="darkgoldenrod",
+            line_color="#1f77b4",
             legendgroup="2",
         ),
         row=2,
@@ -271,11 +271,11 @@ def plot_analytics(analytics):
     fig = make_subplots(
         rows=2,
         cols=1,
-        shared_xaxes=False,
+        shared_xaxes=True,
         subplot_titles=("No true effect", "With true effect"),
-        horizontal_spacing=0,
+        vertical_spacing=0.1,
     )
-    colors = ["darkgreen", "darkgoldenrod"]
+    colors = ["#1f77b4",  "#ff7f0e"]
     for idx, appraoch in enumerate(["ate", "pv"]):
         tn = analytics[appraoch]["null"]["negatives"]
         fp = analytics[appraoch]["null"]["positives"]
@@ -347,12 +347,6 @@ def plot_analytics(analytics):
     fig.update_xaxes(
         title_text="Time",
         row=2,
-        col=1,
-    )
-
-    fig.update_xaxes(
-        title_text="Time",
-        row=1,
         col=1,
     )
 
