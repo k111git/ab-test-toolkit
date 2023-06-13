@@ -17,7 +17,7 @@ def hello():
 # %% ../nbs/04_wrappers.ipynb 8
 import numpy as np
 import pandas as pd
-from .generator import data_to_contingency
+from .generator import data_to_contingency, generate_binary_data
 from .analyze import p_value_binary
 import plotly.io as pio
 
