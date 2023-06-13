@@ -39,4 +39,12 @@ d = { 'settings': { 'branch': 'main',
                                                                                         'ab_test_toolkit/power.py'),
                                        'ab_test_toolkit.power.simulate_power_continuous': ( 'power.html#simulate_power_continuous',
                                                                                             'ab_test_toolkit/power.py')},
-            'ab_test_toolkit.wrappers': {'ab_test_toolkit.wrappers.hello': ('wrappers.html#hello', 'ab_test_toolkit/wrappers.py')}}}
+            'ab_test_toolkit.wrappers': { 'ab_test_toolkit.wrappers.hello': ('wrappers.html#hello', 'ab_test_toolkit/wrappers.py'),
+                                          'ab_test_toolkit.wrappers.plot_realization': ( 'wrappers.html#plot_realization',
+                                                                                         'ab_test_toolkit/wrappers.py'),
+                                          'ab_test_toolkit.wrappers.plot_snapshots_distribution': ( 'wrappers.html#plot_snapshots_distribution',
+                                                                                                    'ab_test_toolkit/wrappers.py'),
+                                          'ab_test_toolkit.wrappers.realizations_of_evolution_binary': ( 'wrappers.html#realizations_of_evolution_binary',
+                                                                                                         'ab_test_toolkit/wrappers.py'),
+                                          'ab_test_toolkit.wrappers.simulate_evolution_binary': ( 'wrappers.html#simulate_evolution_binary',
+                                                                                                  'ab_test_toolkit/wrappers.py')}}}
