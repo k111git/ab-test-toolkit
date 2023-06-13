@@ -113,7 +113,7 @@ def plot_realization(plot_df, multiply_ate=1.0):
         specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
     )
 
-    if len(df) >= 20:
+    if len(plot_df) >= 20:
         mode = "lines"
     else:
         mode = "lines+markers"
@@ -148,7 +148,7 @@ def plot_realization(plot_df, multiply_ate=1.0):
         go.Scatter(
             x=plot_df["size"],
             y=multiply_ate * plot_df[f"ate"],
-            mode="lines+markers",
+            mode=mode,
             name=f"ate",
             line_color="darkgoldenrod",
             legendgroup="2",
@@ -186,8 +186,10 @@ def plot_realization(plot_df, multiply_ate=1.0):
 
 # %% ../nbs/04_wrappers.ipynb 13
 def plot_snapshots_distribution(
-    snapshots, vline_x=None, snapshot_indices=[0, 4, 9]
+    snapshots, vline_x=None, snapshot_indices=None
 ):
+    if snapshot_indices==None:
+        snapshot_indices=[0,int(len(snapshots)/2.0),len(snapshots)-1]
     fig = ff.create_distplot(
         [snapshots[j]["ate"] for j in snapshot_indices],
         snapshot_indices,
@@ -256,6 +258,7 @@ def analytics_null_vs_effect(r0, r1, alpha=0.1, ate_limit=0.005):
         "pv": pv,
         "confusion_p": confusion_p,
         "confusion_ate": confusion_ate,
+        "alpha": alpha
     }
 
 # %% ../nbs/04_wrappers.ipynb 16
@@ -278,7 +281,7 @@ def plot_analytics(analytics):
         fp = analytics[appraoch]["null"]["positives"]
         fig.add_trace(
             go.Scatter(
-                x=np.array(range(0, len(tn_ate))),
+                x=np.array(range(0, len(tn))),
                 y=tn,
                 mode="lines",
                 name=f"{appraoch} TN",
@@ -290,7 +293,7 @@ def plot_analytics(analytics):
         )
         fig.add_trace(
             go.Scatter(
-                x=np.array(range(0, len(tn_ate))),
+                x=np.array(range(0, len(fp))),
                 y=fp,
                 mode="lines",
                 name=f"{appraoch} FP",
@@ -307,7 +310,7 @@ def plot_analytics(analytics):
         fp = analytics[appraoch]["effect"]["positives"]
         fig.add_trace(
             go.Scatter(
-                x=np.array(range(0, len(tn_ate))),
+                x=np.array(range(0, len(tn))),
                 y=tn,
                 mode="lines",
                 name=f"{appraoch} FN",
@@ -320,7 +323,7 @@ def plot_analytics(analytics):
         )
         fig.add_trace(
             go.Scatter(
-                x=np.array(range(0, len(tn_ate))),
+                x=np.array(range(0, len(fp))),
                 y=fp,
                 mode="lines",
                 name=f"{appraoch} TP",
