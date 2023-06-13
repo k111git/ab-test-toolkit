@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['info', 'hello', 'simulate_evolution_binary', 'realizations_of_evolution_binary', 'plot_realization',
-           'plot_snapshots_distribution']
+           'plot_snapshots_distribution', 'analytics_null_vs_effect', 'plot_analytics']
 
 # %% ../nbs/04_wrappers.ipynb 6
 def hello():
@@ -29,7 +29,11 @@ from plotly.subplots import make_subplots
 
 # %% ../nbs/04_wrappers.ipynb 9
 def simulate_evolution_binary(
-    N=10000, cr0=0.10, cr1=0.11, snapshot_sizes=np.arange(1000, 10001, 1000)
+    N=10000,
+    cr0=0.10,
+    cr1=0.11,
+    snapshot_sizes=np.arange(1000, 10001, 1000),
+    one_sided=True,
 ):
     """
     Simulates the evolution of a binary experiment.
@@ -44,7 +48,7 @@ def simulate_evolution_binary(
         converted0, converted1 = df_c.converted
         rate0, rate1 = df_c.cvr
         ate = rate1 - rate0
-        pv = p_value_binary(df_c)
+        pv = p_value_binary(df_c, one_sided=one_sided)
         out_df = pd.DataFrame(
             {
                 "size": [current_size],
@@ -69,11 +73,16 @@ def realizations_of_evolution_binary(
     cr0=0.10,
     cr1=0.11,
     snapshot_sizes=np.arange(1000, 10001, 1000),
+    one_sided=True,
 ):
     realizations_df = []
     for i in range(0, N_realizations):
         result_df = simulate_evolution_binary(
-            N=N, cr0=cr0, cr1=cr1, snapshot_sizes=snapshot_sizes
+            N=N,
+            cr0=cr0,
+            cr1=cr1,
+            snapshot_sizes=snapshot_sizes,
+            one_sided=one_sided,
         )
         realizations_df.append(result_df)
         if (i % 10) == 0:
@@ -96,7 +105,7 @@ def realizations_of_evolution_binary(
     return {"dataframes": realizations_df, "snapshots": snapshots_df}
 
 # %% ../nbs/04_wrappers.ipynb 12
-def plot_realization(plot_df):
+def plot_realization(plot_df, multiply_ate=1.0):
     colors = ["gray", "brown"]
     fig = make_subplots(
         rows=2,
@@ -104,12 +113,17 @@ def plot_realization(plot_df):
         specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
     )
 
+    if len(df) >= 20:
+        mode = "lines"
+    else:
+        mode = "lines+markers"
+
     for group in [0, 1]:
         fig.add_trace(
             go.Scatter(
                 x=plot_df["size"],
                 y=plot_df[f"converted{group}"],
-                mode="lines+markers",
+                mode=mode,
                 name=f"Group: {group}",
                 line_color=colors[group],
                 legendgroup="1",
@@ -122,7 +136,7 @@ def plot_realization(plot_df):
         go.Scatter(
             x=plot_df["size"],
             y=plot_df[f"pv"],
-            mode="lines+markers",
+            mode=mode,
             name=f"pvalue",
             line_color="cornflowerblue",
             legendgroup="2",
@@ -133,7 +147,7 @@ def plot_realization(plot_df):
     fig.add_trace(
         go.Scatter(
             x=plot_df["size"],
-            y=-1 * plot_df[f"ate"],
+            y=multiply_ate * plot_df[f"ate"],
             mode="lines+markers",
             name=f"ate",
             line_color="darkgoldenrod",
@@ -163,18 +177,20 @@ def plot_realization(plot_df):
     )
 
     fig.update_layout(
-        height=600,
-        width=800,
+        height=700,
+        width=1000,
         title_text="",
-        legend_tracegroupgap=180,
+        legend_tracegroupgap=250,
     )
     return fig
 
 # %% ../nbs/04_wrappers.ipynb 13
-def plot_snapshots_distribution(snapshots, vline_x=None):
+def plot_snapshots_distribution(
+    snapshots, vline_x=None, snapshot_indices=[0, 4, 9]
+):
     fig = ff.create_distplot(
-        [snapshots[j]["ate"] for j in [0, 4, 9]],
-        [0, 4, 9],
+        [snapshots[j]["ate"] for j in snapshot_indices],
+        snapshot_indices,
         show_hist=False,
         show_rug=True,
     )
@@ -193,7 +209,159 @@ def plot_snapshots_distribution(snapshots, vline_x=None):
     fig.update_xaxes(range=[-0.04, 0.04])
     fig.show()
 
+# %% ../nbs/04_wrappers.ipynb 15
+def analytics_null_vs_effect(r0, r1, alpha=0.1, ate_limit=0.005):
+    """
+    Shows the power and false positives of using a p value vs directly the ATE
+    r0,r1: Realization objects from realizations_of_evolution_binary
+    r0: No effect
+    r1: With effect
+    """
+    ate = dict()
+    pv = dict()
+    for effect, snapshot in zip(
+        ["null", "effect"], [r0["snapshots"], r1["snapshots"]]
+    ):
+        ate[effect] = dict()
+        ate[effect]["positives"] = [
+            (df["ate"] > ate_limit).mean() for df in snapshot
+        ]
+        ate[effect]["negatives"] = [
+            (df["ate"] <= ate_limit).mean() for df in snapshot
+        ]
+        pv[effect] = dict()
+        pv[effect]["positives"] = [
+            (df["pvalue"] < alpha).mean() for df in snapshot
+        ]
+        pv[effect]["negatives"] = [
+            (df["pvalue"] >= alpha).mean() for df in snapshot
+        ]
+
+    fp = pv["null"]["positives"][-1]
+    fn = pv["effect"]["negatives"][-1]
+    tp = pv["effect"]["positives"][-1]
+    tn = pv["null"]["negatives"][-1]
+
+    confusion_p = pd.DataFrame({0: [tn, fp], 1: [fn, tp]}) / 2.0
+
+    fp = ate["null"]["positives"][-1]
+    fn = ate["effect"]["negatives"][-1]
+    tp = ate["effect"]["positives"][-1]
+    tn = ate["null"]["negatives"][-1]
+
+    confusion_ate = pd.DataFrame({0: [tn, fp], 1: [fn, tp]}) / 2.0
+
+    return {
+        "ate": ate,
+        "pv": pv,
+        "confusion_p": confusion_p,
+        "confusion_ate": confusion_ate,
+    }
+
 # %% ../nbs/04_wrappers.ipynb 16
+def plot_analytics(analytics):
+    """
+    plots elements of confusion matrix over time
+    """
+    alpha = analytics["alpha"]
+
+    fig = make_subplots(
+        rows=2,
+        cols=1,
+        shared_xaxes=False,
+        subplot_titles=("No true effect", "With true effect"),
+        horizontal_spacing=0,
+    )
+    colors = ["darkgreen", "darkgoldenrod"]
+    for idx, appraoch in enumerate(["ate", "pv"]):
+        tn = analytics[appraoch]["null"]["negatives"]
+        fp = analytics[appraoch]["null"]["positives"]
+        fig.add_trace(
+            go.Scatter(
+                x=np.array(range(0, len(tn_ate))),
+                y=tn,
+                mode="lines",
+                name=f"{appraoch} TN",
+                line_color=colors[idx],
+                legendgroup="1",
+            ),
+            row=1,
+            col=1,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=np.array(range(0, len(tn_ate))),
+                y=fp,
+                mode="lines",
+                name=f"{appraoch} FP",
+                line_color=colors[idx],
+                legendgroup="1",
+                line=dict(dash="dash"),
+            ),
+            row=1,
+            col=1,
+        )
+
+    for idx, appraoch in enumerate(["ate", "pv"]):
+        tn = analytics[appraoch]["effect"]["negatives"]
+        fp = analytics[appraoch]["effect"]["positives"]
+        fig.add_trace(
+            go.Scatter(
+                x=np.array(range(0, len(tn_ate))),
+                y=tn,
+                mode="lines",
+                name=f"{appraoch} FN",
+                line_color=colors[idx],
+                legendgroup="2",
+                line=dict(dash="dash"),
+            ),
+            row=2,
+            col=1,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=np.array(range(0, len(tn_ate))),
+                y=fp,
+                mode="lines",
+                name=f"{appraoch} TP",
+                line_color=colors[idx],
+                legendgroup="2",
+            ),
+            row=2,
+            col=1,
+        )
+
+    fig.update_yaxes(
+        title_text="",
+        row=2,
+        col=1,
+    )
+    fig.update_yaxes(
+        title_text="",
+        row=1,
+        col=1,
+    )
+    fig.update_xaxes(
+        title_text="Time",
+        row=2,
+        col=1,
+    )
+
+    fig.update_xaxes(
+        title_text="Time",
+        row=1,
+        col=1,
+    )
+
+    fig.update_layout(
+        height=800,
+        width=1000,
+        title_text=f"Power and False Positives, alpha={alpha}",
+        legend_tracegroupgap=350,
+    )
+    return fig
+
+# %% ../nbs/04_wrappers.ipynb 19
 info = dict()
 info[
     "power"
