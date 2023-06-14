@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['info', 'hello', 'simulate_evolution_binary', 'realizations_of_evolution_binary', 'plot_realization',
-           'plot_snapshots_distribution', 'analytics_null_vs_effect', 'plot_analytics']
+           'plot_snapshots_distribution', 'analytics_null_vs_effect', 'plot_analytics', 'plot_analytics_compact']
 
 # %% ../nbs/04_wrappers.ipynb 6
 def hello():
@@ -404,6 +404,100 @@ def plot_analytics(analytics):
         ticktext=my_sizes[::label_every]/2.0, #divide by 2 due to sample size per variant.
         row=2,
         col=1,
+    )
+    return fig
+
+# %% ../nbs/04_wrappers.ipynb 17
+def plot_analytics_compact(analytics,approach):
+    """
+    plots elements of confusion matrix over time.
+    input: analytics element from analytics_null_vs_effect
+    approach: "both", "ate", or "pv".
+    """
+    alpha = analytics["alpha"]
+    
+    my_sizes=analytics['snapshot_sizes']
+    
+    if len(my_sizes)>=100:
+        label_every=10
+    elif len(my_sizes)>=30:
+        label_every=4
+    elif len(my_sizes)>=20:
+        label_every=2
+    else:
+        label_every=1
+    
+    fig = make_subplots()
+    colors = ["#1f77b4",  "#ff7f0e"]
+
+    if approach != 'both':
+
+        tp = analytics[approach]["effect"]["positives"]
+        fp = analytics[approach]["null"]["positives"]
+        fig.add_trace(
+            go.Scatter(
+                x=np.array(range(0, len(fp))),
+                y=fp,
+                mode="lines",
+                name=f"False positives (alpha)",
+                line_color=colors[0],
+            ),
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=np.array(range(0, len(tp))),
+                y=tp,
+                mode="lines",
+                name=f"True positives (power)",
+                line_color=colors[1],
+            ),
+        )
+    
+    else:
+        dasher=['solid','dash']
+        for idx,this_approach in enumerate(['ate','pv']):
+            tp = analytics[this_approach]["effect"]["positives"]
+            fp = analytics[this_approach]["null"]["positives"]
+            fig.add_trace(
+                go.Scatter(
+                    x=np.array(range(0, len(fp))),
+                    y=fp,
+                    mode="lines",
+                    name=f"False positives {this_approach}",
+                    line=dict(dash=dasher[idx]),
+                    line_color=colors[0],
+                ),
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=np.array(range(0, len(tp))),
+                    y=tp,
+                    mode="lines",
+                    name=f"True positives {this_approach}",
+                    line=dict(dash=dasher[idx]),
+                    line_color=colors[1],
+                ),
+            )
+
+    fig.update_yaxes(
+        title_text="",
+        range=[0,1]
+    )
+    fig.update_xaxes(
+        title_text="Time",
+    )
+
+    fig.update_layout(
+        height=600,
+        width=1000,
+        title_text=f"Power and False Positives: {approach}",
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+    )
+    
+    fig=fig.update_xaxes(
+        title_text="Size per variant",
+        tickvals=np.array(range(0,len(my_sizes)))[::label_every],
+        ticktext=my_sizes[::label_every]/2.0, #divide by 2 due to sample size per variant.
     )
     return fig
 
