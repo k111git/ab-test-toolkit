@@ -69,12 +69,12 @@ def simulate_evolution_binary(
 # %% ../nbs/04_wrappers.ipynb 11
 def realizations_of_evolution_binary(
     N_realizations=50,
-    N=10000,
     cr0=0.10,
     cr1=0.11,
     snapshot_sizes=np.arange(1000, 10001, 1000),
     one_sided=True,
 ):
+    N = np.max(snapshot_sizes)
     realizations_df = []
     for i in range(0, N_realizations):
         result_df = simulate_evolution_binary(
@@ -105,7 +105,7 @@ def realizations_of_evolution_binary(
     return {"dataframes": realizations_df, "snapshots": snapshots_df,'snapshot_sizes': snapshot_sizes}
 
 # %% ../nbs/04_wrappers.ipynb 12
-def plot_realization(plot_df, multiply_ate=1.0):
+def plot_realization(plot_df, multiply_ate=1.0,alpha=0.05,ate_line=0.01):
     colors = ["gray", "brown"]
     fig = make_subplots(
         rows=2,
@@ -147,16 +147,17 @@ def plot_realization(plot_df, multiply_ate=1.0):
     fig.add_trace(
         go.Scatter(
             x=plot_df["size"],
-            y=[0.05]*len(plot_df["size"]),
+            y=[alpha]*len(plot_df["size"]),
             mode=mode,
-            name=f"p=0.05",
-            line_color="gray",
-            line_dash='dash',
+            name=f"p={alpha}",
+            line_color="#ff7f0e",
+            line_dash='dot',
             legendgroup="2",
         ),
         row=2,
         col=1,
     )
+
     fig.add_trace(
         go.Scatter(
             x=plot_df["size"],
@@ -169,6 +170,20 @@ def plot_realization(plot_df, multiply_ate=1.0):
         row=2,
         col=1,
         secondary_y=True,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=plot_df["size"],
+            y=[ate_line]*len(plot_df["size"]),
+            mode=mode,
+            name=f"ate={ate_line}",
+            line_color="#1f77b4",
+            line_dash='dot',
+            legendgroup="2",
+        ),
+        row=2,
+        col=1,
+        secondary_y=True
     )
     fig.update_yaxes(
         title_text="ate",
@@ -272,7 +287,8 @@ def analytics_null_vs_effect(r0, r1, alpha=0.1, ate_limit=0.005):
         "pv": pv,
         "confusion_p": confusion_p,
         "confusion_ate": confusion_ate,
-        "alpha": alpha
+        "alpha": alpha,
+        'snapshot_sizes': r0['snapshot_sizes']
     }
 
 # %% ../nbs/04_wrappers.ipynb 16
@@ -281,7 +297,18 @@ def plot_analytics(analytics):
     plots elements of confusion matrix over time
     """
     alpha = analytics["alpha"]
-
+    
+    my_sizes=analytics['snapshot_sizes']
+    
+    if len(my_sizes)>=100:
+        label_every=10
+    elif len(my_sizes)>=30:
+        label_every=4
+    elif len(my_sizes)>=20:
+        label_every=2
+    else:
+        label_every=1
+    
     fig = make_subplots(
         rows=2,
         cols=1,
@@ -369,6 +396,14 @@ def plot_analytics(analytics):
         width=1000,
         title_text=f"Power and False Positives, alpha={alpha}",
         legend_tracegroupgap=350,
+    )
+    
+    fig=fig.update_xaxes(
+        title_text="Size per variant",
+        tickvals=np.array(range(0,len(my_sizes)))[::label_every],
+        ticktext=my_sizes[::label_every]/2.0, #divide by 2 due to sample size per variant.
+        row=2,
+        col=1,
     )
     return fig
 
