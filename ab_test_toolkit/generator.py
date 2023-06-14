@@ -84,7 +84,7 @@ def generate_contingency(N=1000, split=0.50, cr0=0.010, cr1=0.011,exact=False):
         c1 = binom.rvs(n1, cr1, loc=0, size=1)[0]
     elif exact==True:
         n0=int(np.round(N*split))
-        n1=N-n1
+        n1=N-n0
         c0=int(np.round(n0*cr0))
         c1=int(np.round(n1*cr1))
     else:

@@ -190,7 +190,6 @@ def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_powe
         template="simple_white",
         xaxis_title="Sample size per variant",
         yaxis_title="Power",
-        hovermode="y unified",
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
     fig.update_xaxes(showspikes=True, spikemode="across", spikethickness=1)
