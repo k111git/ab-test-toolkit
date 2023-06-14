@@ -147,6 +147,19 @@ def plot_realization(plot_df, multiply_ate=1.0):
     fig.add_trace(
         go.Scatter(
             x=plot_df["size"],
+            y=[0.05]*len(plot_df["size"]),
+            mode=mode,
+            name=f"p=0.05",
+            line_color="gray",
+            line_dash='dash',
+            legendgroup="2",
+        ),
+        row=2,
+        col=1,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=plot_df["size"],
             y=multiply_ate * plot_df[f"ate"],
             mode=mode,
             name=f"ate",
@@ -168,6 +181,7 @@ def plot_realization(plot_df, multiply_ate=1.0):
         secondary_y=False,
         row=2,
         col=1,
+        range=[0,1]
     )
     fig.update_yaxes(
         title_text="Conversions",
