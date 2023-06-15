@@ -161,6 +161,7 @@ def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_powe
     Generate a chart that shows the 
     """
     sizes = []
+    powers=powers[powers>alpha]
     for power in powers:
         size = sample_size_binary(
             cr0=cr0, cr1=cr1, alpha=alpha, power=power, one_sided=one_sided

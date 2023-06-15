@@ -15,6 +15,7 @@ from ab_test_toolkit.generator import (
     generate_binary_data,
     generate_continuous_data,
     data_to_contingency,
+    contingency_from_counts,
 )
 from ab_test_toolkit.power import (
     simulate_power_binary,
@@ -28,6 +29,8 @@ from ab_test_toolkit.plotting import (
     plot_betas,
     plot_binary_power,
 )
+
+from ab_test_toolkit.analyze import p_value_binary
 ```
 
 ## Binary target (e.g. conversion rate experiments)
@@ -121,6 +124,44 @@ sample size per variant):
 #     added_lines=[{"sample_size": sample_size_binary(), "label": "Chi2"}],
 # )
 ```
+
+### Compute p-value
+
+``` python
+n0 = 5000
+n1 = 5100
+c0 = 450
+c1 = 495
+df_c = contingency_from_counts(n0, c0, n1, c1)
+df_c
+```
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+&#10;    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+&#10;    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+
+|       | users | converted | not_converted | cvr      |
+|-------|-------|-----------|---------------|----------|
+| group |       |           |               |          |
+| 0     | 5000  | 450       | 4550          | 0.090000 |
+| 1     | 5100  | 495       | 4605          | 0.097059 |
+
+</div>
+
+``` python
+p_value_binary(df_c)
+```
+
+    0.11824221841149218
 
 ### The problem of peaking
 
