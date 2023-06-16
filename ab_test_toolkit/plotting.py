@@ -146,7 +146,7 @@ def plot_betas(df_contingency, xmin=0.0, xmax=0.2, names=["A", "B"]):
         )
 
     fig.update_layout(
-        title="Distribution of true CVR",
+        title="",
         template="simple_white",
         xaxis_title="CVR",
         yaxis_title="PDF",

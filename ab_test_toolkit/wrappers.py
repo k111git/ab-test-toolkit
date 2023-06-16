@@ -105,12 +105,22 @@ def realizations_of_evolution_binary(
     }
 
 # %% ../nbs/04_wrappers.ipynb 10
-def plot_realization(plot_df, multiply_ate=1.0, alpha=0.05, ate_line=0.01):
+def plot_realization(
+    plot_df, multiply_ate=1.0, alpha=0.05, ate_line=0.01, info=False
+):
     colors = ["gray", "brown"]
+    if info == False:
+        n_cols = 1
+        specs = [[{"secondary_y": False}]]
+        height = 400
+    else:
+        n_cols = 2
+        specs = [[{"secondary_y": False}], [{"secondary_y": True}]]
+        height = 700
     fig = make_subplots(
-        rows=2,
+        rows=n_cols,
         cols=1,
-        specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
+        specs=specs,
     )
 
     if len(plot_df) >= 20:
@@ -132,68 +142,71 @@ def plot_realization(plot_df, multiply_ate=1.0, alpha=0.05, ate_line=0.01):
             col=1,
         )
 
-    fig.add_trace(
-        go.Scatter(
-            x=plot_df["size"],
-            y=plot_df[f"pv"],
-            mode=mode,
-            name=f"pvalue",
-            line_color="#ff7f0e",
-            legendgroup="2",
-        ),
-        row=2,
-        col=1,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=plot_df["size"],
-            y=[alpha] * len(plot_df["size"]),
-            mode='lines',
-            name=f"p={alpha}",
-            line_color="#ff7f0e",
-            line_dash="dot",
-            legendgroup="2",
-        ),
-        row=2,
-        col=1,
-    )
+    if info == True:
+        fig.add_trace(
+            go.Scatter(
+                x=plot_df["size"],
+                y=plot_df[f"pv"],
+                mode=mode,
+                name=f"pvalue",
+                line_color="#ff7f0e",
+                legendgroup="2",
+            ),
+            row=2,
+            col=1,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=plot_df["size"],
+                y=[alpha] * len(plot_df["size"]),
+                mode="lines",
+                name=f"p={alpha}",
+                line_color="#ff7f0e",
+                line_dash="dot",
+                legendgroup="2",
+            ),
+            row=2,
+            col=1,
+        )
 
-    fig.add_trace(
-        go.Scatter(
-            x=plot_df["size"],
-            y=multiply_ate * plot_df[f"ate"],
-            mode=mode,
-            name=f"ate",
-            line_color="#1f77b4",
-            legendgroup="2",
-        ),
-        row=2,
-        col=1,
-        secondary_y=True,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=plot_df["size"],
-            y=[ate_line] * len(plot_df["size"]),
-            mode='lines',
-            name=f"ate={ate_line}",
-            line_color="#1f77b4",
-            line_dash="dot",
-            legendgroup="2",
-        ),
-        row=2,
-        col=1,
-        secondary_y=True,
-    )
-    fig.update_yaxes(
-        title_text="ate",
-        secondary_y=True,
-        row=2,
-        col=1,
-    )
-    fig.update_yaxes(
-        title_text="pvalue", secondary_y=False, row=2, col=1, range=[0, 1]
-    )
+        fig.add_trace(
+            go.Scatter(
+                x=plot_df["size"],
+                y=multiply_ate * plot_df[f"ate"],
+                mode=mode,
+                name=f"ate",
+                line_color="#1f77b4",
+                legendgroup="2",
+            ),
+            row=2,
+            col=1,
+            secondary_y=True,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=plot_df["size"],
+                y=[ate_line] * len(plot_df["size"]),
+                mode="lines",
+                name=f"ate={ate_line}",
+                line_color="#1f77b4",
+                line_dash="dot",
+                legendgroup="2",
+            ),
+            row=2,
+            col=1,
+            secondary_y=True,
+        )
+        fig.update_yaxes(
+            title_text="ate",
+            secondary_y=True,
+            row=2,
+            col=1,
+        )
+
+        fig.update_yaxes(
+            title_text="pvalue", secondary_y=False, row=2, col=1, range=[0, 1]
+        )
+
     fig.update_yaxes(
         title_text="Conversions",
         secondary_y=False,
@@ -202,7 +215,7 @@ def plot_realization(plot_df, multiply_ate=1.0, alpha=0.05, ate_line=0.01):
     )
 
     fig.update_layout(
-        height=700,
+        height=height,
         width=1000,
         title_text="",
         legend_tracegroupgap=250,
@@ -233,8 +246,8 @@ def plot_snapshots_distribution(
         legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.95),
         height=600,
     )
-    fig.update_xaxes(range=[-0.04, 0.04])
-    fig.show()
+    #     fig.update_xaxes(range=[-0.04, 0.04])
+    return fig
 
 # %% ../nbs/04_wrappers.ipynb 13
 def analytics_null_vs_effect(r0, r1, alpha=0.1, ate_limit=0.005):
@@ -496,29 +509,31 @@ def plot_analytics_compact(analytics, approach):
     return fig
 
 # %% ../nbs/04_wrappers.ipynb 16
-def plot_comparison_ate_pvalue(cr0=0.10,crmax=0.12,sizes=[1000,2000,5000,10000],one_sided=True):
-    '''
+def plot_comparison_ate_pvalue(
+    cr0=0.10, crmax=0.12, sizes=[1000, 2000, 5000, 10000], one_sided=True
+):
+    """
     Compares the average treatment effect (difference in conversion rates) with the P value for different sample sizes.
     Inputs:
     sizes: List of total sample sizes considered
     cr0: baseline conversion rate
-    crmax: max conversion rate (we will plot ATEs until crmax - cr0) 
+    crmax: max conversion rate (we will plot ATEs until crmax - cr0)
     Output: Plot
-    '''
-    dfs=[]
+    """
+    dfs = []
     for size in sizes:
-        pvs=[]
-        ates=[]
-        for cr1 in np.linspace(cr0,crmax,100):
-            df=generate_contingency(N=size, cr0=cr0, cr1=cr1, exact=True)
-            this_ate=df.loc[1].cvr-df.loc[0].cvr
-            this_pv=p_value_binary(df,one_sided=one_sided)
+        pvs = []
+        ates = []
+        for cr1 in np.linspace(cr0, crmax, 100):
+            df = generate_contingency(N=size, cr0=cr0, cr1=cr1, exact=True)
+            this_ate = df.loc[1].cvr - df.loc[0].cvr
+            this_pv = p_value_binary(df, one_sided=one_sided)
             pvs.append(this_pv)
             ates.append(this_ate)
-        out=pd.DataFrame({'ate':ates,'pvs': pvs})
-        out['size']=size
+        out = pd.DataFrame({"ate": ates, "pvs": pvs})
+        out["size"] = size
         dfs.append(out)
-    out_all=pd.concat(dfs)
+    out_all = pd.concat(dfs)
     fig = px.line(out_all, x="ate", y="pvs", color="size")
     fig.update_layout(
         height=600,
