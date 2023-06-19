@@ -109,6 +109,7 @@ def plot_realization(
     plot_df, multiply_ate=1.0, alpha=0.05, ate_line=0.01, info=False
 ):
     colors = ["#1f77b4", "#ff7f0e"]
+    colors_bottom=['#2ca02c','#d62728']
     if info == False:
         n_cols = 1
         specs = [[{"secondary_y": False}]]
@@ -175,7 +176,7 @@ def plot_realization(
                 y=multiply_ate * plot_df[f"ate"],
                 mode=mode,
                 name=f"ate",
-                line_color="#1f77b4",
+                line_color=colors_bottom[0],
                 legendgroup="2",
             ),
             row=2,
@@ -188,7 +189,7 @@ def plot_realization(
                 y=[ate_line] * len(plot_df["size"]),
                 mode="lines",
                 name=f"ate={ate_line}",
-                line_color="#1f77b4",
+                line_color=colors_bottom[1],
                 line_dash="dot",
                 legendgroup="2",
             ),
