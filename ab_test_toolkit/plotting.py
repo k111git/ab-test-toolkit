@@ -49,15 +49,15 @@ def plot_power(simulation, added_lines=[], is_effect=True):
     approaches = simulation["approaches"]
     if is_effect == True:
         ytitle = "Power"
-        yrange=[0,1]
+        yrange = [0, 1]
     elif is_effect == False:
         ytitle = "False positives"
-        yrange=[0,0.1]
+        yrange = [0, 0.1]
     else:
         raise Exception(
             "Non boolean for is effect encountered in power plot function."
         )
-        
+
     fig = go.Figure()
     for approach in approaches:
         fig.add_trace(
@@ -100,7 +100,6 @@ def plot_power(simulation, added_lines=[], is_effect=True):
                 line_width=1,
             )
         )
-
 
     fig.update_layout(
         template="simple_white",
@@ -156,12 +155,19 @@ def plot_betas(df_contingency, xmin=0.0, xmax=0.2, names=["A", "B"]):
     return fig
 
 # %% ../nbs/03_plotting.ipynb 11
-def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_power=0.8,powers=np.arange(0.1, 0.91, 0.01)):
+def plot_binary_power(
+    cr0=0.01,
+    cr1=0.012,
+    alpha=0.05,
+    one_sided=True,
+    vline_power=0.8,
+    powers=np.arange(0.1, 0.91, 0.01),
+):
     """
-    Generate a chart that shows the 
+    Generate a chart that shows the
     """
     sizes = []
-    powers=powers[powers>alpha]
+    powers = powers[powers > alpha * 1.1]
     for power in powers:
         size = sample_size_binary(
             cr0=cr0, cr1=cr1, alpha=alpha, power=power, one_sided=one_sided
@@ -179,7 +185,11 @@ def plot_binary_power(cr0=0.01, cr1=0.012, alpha=0.05, one_sided=True,vline_powe
 
     fig.add_vline(
         x=sample_size_binary(
-            cr0=cr0, cr1=cr1, alpha=alpha, power=vline_power, one_sided=one_sided
+            cr0=cr0,
+            cr1=cr1,
+            alpha=alpha,
+            power=vline_power,
+            one_sided=one_sided,
         ),
         line_width=2,
         line_dash="dash",
@@ -246,7 +256,7 @@ def plot_continuous_power(
         hovermode="y unified",
         legend=dict(yanchor="top", y=1, xanchor="left", x=0.0),
     )
-    fig.update_xaxes(showspikes=True, spikemode="across",spikethickness=1)
-    fig.update_yaxes(showspikes=True, spikemode="across",spikethickness=1)
+    fig.update_xaxes(showspikes=True, spikemode="across", spikethickness=1)
+    fig.update_yaxes(showspikes=True, spikemode="across", spikethickness=1)
     fig.update_layout(spikedistance=1000, hoverdistance=100)
     return fig
