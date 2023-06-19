@@ -108,7 +108,7 @@ def realizations_of_evolution_binary(
 def plot_realization(
     plot_df, multiply_ate=1.0, alpha=0.05, ate_line=0.01, info=False
 ):
-    colors = ["gray", "brown"]
+    colors = ["#1f77b4", "#ff7f0e"]
     if info == False:
         n_cols = 1
         specs = [[{"secondary_y": False}]]
