@@ -129,7 +129,7 @@ def plot_realization(
     else:
         mode = "lines+markers"
 
-    for group in [0, 1]:
+    for group in [1, 0]:
         fig.add_trace(
             go.Scatter(
                 x=plot_df["size"],
