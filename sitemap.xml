@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://k111git.github.io/ab-test-toolkit/plotting.html</loc>
+    <lastmod>2023-06-20T13:50:06.233Z</lastmod>
+  </url>
+  <url>
+    <loc>https://k111git.github.io/ab-test-toolkit/data_generation.html</loc>
+    <lastmod>2023-06-20T13:50:06.949Z</lastmod>
+  </url>
+  <url>
+    <loc>https://k111git.github.io/ab-test-toolkit/analyze.html</loc>
+    <lastmod>2023-06-20T13:50:07.309Z</lastmod>
+  </url>
+  <url>
+    <loc>https://k111git.github.io/ab-test-toolkit/wrappers.html</loc>
+    <lastmod>2023-06-20T13:50:07.649Z</lastmod>
+  </url>
+  <url>
+    <loc>https://k111git.github.io/ab-test-toolkit/power.html</loc>
+    <lastmod>2023-06-20T13:50:07.953Z</lastmod>
+  </url>
+  <url>
+    <loc>https://k111git.github.io/ab-test-toolkit/index.html</loc>
+    <lastmod>2023-06-20T13:50:08.657Z</lastmod>
+  </url>
+</urlset>
